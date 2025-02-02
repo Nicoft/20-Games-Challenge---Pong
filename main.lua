@@ -1,16 +1,6 @@
 local love = require "love"
 
---functions
-function checkCollision(a, b)
-    return a.x < b.x + b.w and
-           a.x + a.w > b.x and
-           a.y < b.y + b.h and
-           a.y + a.h > b.y
-end
 
-function random(a, b)
-    return math.random(a,b)
-end
 
 
 -- resources
@@ -24,6 +14,15 @@ local title = "PONG"
 WINDOW_WIDTH = love.graphics.getWidth()
 WINDOW_HEIGHT = love.graphics.getHeight()
 love.math.setRandomSeed(love.timer.getTime())
+
+--functions
+function checkCollision(a, b)
+    return a.x < b.x + b.w and
+           a.x + a.w > b.x and
+           a.y < b.y + b.h and
+           a.y + a.h > b.y
+end
+
 
 --variables
 local titleWidth = h1:getWidth(title)
@@ -42,7 +41,7 @@ local function createPaddle(id, x, y)
         h = 100,
         x = x,
         y = y, 
-        speed = 400,
+        speedX = 400,
         dy = 0,
         draw = function(self)
             love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
@@ -51,9 +50,9 @@ local function createPaddle(id, x, y)
 
             --paddle movement, with max a min stoppers for top and bottom edge of screen.
             if self.dy < 0 then
-                self.y = math.max(0, self.y + self.speed * self.dy * dt)
+                self.y = math.max(0, self.y + self.speedX * self.dy * dt)
             else
-                self.y = math.min(WINDOW_HEIGHT-self.h, self.y + self.speed * self.dy * dt)
+                self.y = math.min(WINDOW_HEIGHT-self.h, self.y + self.speedX * self.dy * dt)
             end
         end
     }
@@ -70,8 +69,9 @@ local ball = {
     w = 20,
     h = 20,
     dx = 1,
-    dy = 0,
-    speed = 200,
+    dy = 1,
+    speedX = 200,
+    speedY = 200,
 
     draw = function(self)
         love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
@@ -81,28 +81,30 @@ local ball = {
         --check to see if the ball collides with player 2. If yes, change direction to left, give random y direction.
         if checkCollision(paddle2, self) then
             self.dx = -1
-            self.dy = random(-1,1)
+            self.speedY = self.dy * 200 * math.random()
 
         end
 
         --check to see if the ball collides with player 1. If yes, change direction to right, give random y direction.
         if checkCollision(paddle1, self) then
             self.dx = 1
-            self.dy = random(-1,1)
+            self.speedY = self.dy * 200 * math.random()
         end
 
         --if the ball touches the top or bottom, reverse Y direction.
         if self.y <= 0 then
             self.dy = self.dy * -1
+            self.y = 0
         end
 
         if self.y >= (WINDOW_HEIGHT - self.h) then
             self.dy = self.dy * -1
+            self.y = WINDOW_HEIGHT - self.h
         end
 
         --ball movement
-        self.x = self.x + self.speed * self.dx * dt
-        self.y = self.y + self.speed * self.dy * dt
+        self.x = self.x + self.speedX * self.dx * dt
+        self.y = self.y + self.speedY * self.dy * dt
     end
 }
 
@@ -157,6 +159,7 @@ function love.draw()
     ball:draw()
 
     --fps debugging
+    love.graphics.print("dy : "..ball.dy,80)
     love.graphics.print(love.timer.getFPS())
 end
 
