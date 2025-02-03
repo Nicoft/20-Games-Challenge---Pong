@@ -132,25 +132,30 @@ local function createPaddle(id, x, y)
         end,
         update = function(self, dt, ball)
             if self.isAI then
+
+                local targetY = ball.y + ball.h / 2
+                local paddleCenterY = self.y + self.h / 2
+                local distance = targetY - paddleCenterY
+                local k = 2
                 -- AI Paddle Logic, change paddle.dy direction considering the ball.y
-                self.timer = self.timer + dt
-                if self.timer >= self.reactionTime then
-                    if ball.y + ball.h / 2 < self.y + self.h / 2 - 8 then
-                        self.dy = -1  -- Move up
-                    elseif ball.y + ball.h / 2 > self.y + self.h / 2 + 8 then
-                        self.dy = 1   -- Move down
-                    else
-                        self.dy = 0   -- Stay still if aligned
-                    end
-                end
+
+                -- self.timer = self.timer + dt
+                -- if self.timer >= self.reactionTime then
+                --     if ball.y + ball.h / 2 < self.y + self.h / 2 - 8 then
+                --         self.dy = -1  -- Move up
+                --     elseif ball.y + ball.h / 2 > self.y + self.h / 2 + 8 then
+                --         self.dy = 1   -- Move down
+                --     else
+                --         self.dy = 0   -- Stay still if aligned
+                --     end
+                -- end
+
+                -- Smooth velocity based on distance
+                self.dy = distance * k * dt
             end
 
             --paddle movement, with max a min stoppers for top and bottom edge of screen.
-            if self.dy < 0 then
-                self.y = math.max(0, self.y + self.speed * self.dy * dt)
-            else
-                self.y = math.min(WINDOW_HEIGHT-self.h, self.y + self.speed * self.dy * dt)
-            end
+            self.y = math.max(0, math.min(WINDOW_HEIGHT - self.h, self.y + self.speed * self.dy * dt))
         end
     }
 end
@@ -215,8 +220,7 @@ function love.update(dt)
             ball.dy = ball.dy / magnitude
             ball.x = paddle2.x - ball.w
             ball.speed = ball.speed * 1.05
-            --reset de paddle ai's rection delay after every player's paddle bounce
-            paddle1.timer = 0
+
         end
 
         if ball.x <= 0 then
