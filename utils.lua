@@ -27,4 +27,19 @@ function M.drawTextCentered(text, font, yOffset)
     love.graphics.print(text, (WINDOW_WIDTH - width) / 2, yOffset)
 end
 
+function M.calculateBounce(ball, paddle)
+    -- How far from the center of the paddle did the ball hit? (-1 to 1)
+    local relativeIntersectY = (paddle.y + paddle.h / 2) - (ball.y + ball.h / 2)
+    -- turn the ball's distance from paddle center into a percentage, middle is 0%, edges are 100%
+    local normalized = relativeIntersectY / (paddle.h / 2)
+
+    -- Max bounce angle (radians) — 75 degrees for more dynamic gameplay
+    local maxBounceAngle = math.rad(50)
+
+    -- Final bounce angle based on where the ball hit
+    local bounceAngle = normalized * maxBounceAngle
+
+    return bounceAngle
+end
+
 return M

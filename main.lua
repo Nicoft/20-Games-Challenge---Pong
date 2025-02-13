@@ -15,21 +15,6 @@ local gameover = love.audio.newSource("sounds/gameover.wav", "static")
 WINDOW_WIDTH = love.graphics.getWidth()
 WINDOW_HEIGHT = love.graphics.getHeight()
 
-local function calculateBounce(ball, paddle)
-    -- How far from the center of the paddle did the ball hit? (-1 to 1)
-    local relativeIntersectY = (paddle.y + paddle.h / 2) - (ball.y + ball.h / 2)
-    -- turn the ball's distance from paddle center into a percentage
-    local normalized = relativeIntersectY / (paddle.h / 2)
-
-    -- Max bounce angle (radians) — 75 degrees for more dynamic gameplay
-    local maxBounceAngle = math.rad(50)
-
-    -- Final bounce angle based on where the ball hit
-    local bounceAngle = normalized * maxBounceAngle
-
-    return bounceAngle
-end
-
 local function createButton(x, y, w, h, text, textColor, buttonColor)
     return {
         text = text,
@@ -200,7 +185,7 @@ function love.update(dt)
 
         if utils.checkCollision(paddle1, ball) then
             blop:play()
-            local angle = calculateBounce(ball, paddle1)
+            local angle = utils.calculateBounce(ball, paddle1)
             ball.dx = math.cos(angle) -- Adjust X based on the angle
             ball.dy = -math.sin(angle)
             local magnitude = utils.magnitude(ball.dx,ball.dy)
@@ -212,7 +197,7 @@ function love.update(dt)
         
         if utils.checkCollision(paddle2, ball) then
             blop:play()
-            local angle = calculateBounce(ball, paddle2)
+            local angle = utils.calculateBounce(ball, paddle2)
             ball.dx = -math.cos(angle) -- Reverse direction for player 2
             ball.dy = -math.sin(angle)
             local magnitude = utils.magnitude(ball.dx,ball.dy)
